@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Raks Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15141C; --bg2:#211F2C; --gold:#D8B45C; --gold-deep:#B6903A; --ivory:#F6F1E4;
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top: env(safe-area-inset-top,0px); height:100%;}
+  body{
+    margin:0; min-height:100%;
+    background: radial-gradient(ellipse at 30% -10%, #2C2939 0%, var(--bg) 55%);
+    font-family:'Manrope', system-ui, sans-serif;
+    color: var(--ivory);
+    display:flex; flex-direction:column; align-items:center;
+    padding: 40px 18px 50px;
+  }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:700; font-size: clamp(2.4rem,9vw,3.4rem);
+    margin: 0 0 6px; color: var(--gold); text-align:center;
+  }
+  .sub{ color:#B7AFC4; font-size:.95rem; margin-bottom: 40px; text-align:center; max-width:360px; }
+  .grid{
+    display:grid; grid-template-columns: 1fr; gap:20px;
+    width:100%; max-width: 380px;
+  }
+  @media (min-width:640px){ .grid{ grid-template-columns: 1fr 1fr; max-width:720px; } }
+  .card{
+    display:block; text-decoration:none; color:inherit;
+    background: rgba(255,255,255,.05);
+    border:1px solid rgba(216,180,92,.25);
+    border-radius: 18px; padding: 22px;
+    backdrop-filter: blur(6px);
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .card:active{ transform: scale(.98); }
+  .card .emoji{ font-size:2.2rem; margin-bottom:10px; display:block; }
+  .card h2{
+    font-family:'Cormorant Garamond', serif; font-weight:700;
+    font-size:1.5rem; margin:0 0 6px; color: var(--ivory);
+  }
+  .card p{ margin:0; font-size:.85rem; color:#B7AFC4; line-height:1.5; }
+  .card .play{
+    margin-top:14px; display:inline-block;
+    font-weight:700; font-size:.8rem; color:#2A1E06;
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    padding: 8px 16px; border-radius:999px;
+  }
+  footer{ margin-top: 50px; font-size:.75rem; color:#6B6478; text-align:center; }
+</style>
+</head>
+<body>
+  <h1>Raks Games</h1>
+  <p class="sub">Small casual games, made to play right in your browser.</p>
+
+  <div class="grid" style="max-width:380px; grid-template-columns:1fr;">
+    <a class="card" href="piano.html">
+      <span class="emoji">🎹</span>
+      <h2>Ivory &amp; Gold Piano</h2>
+      <p>A playable 3D piano. Load your own song and background photo.</p>
+      <span class="play">Play now</span>
+    </a>
+  </div>
+
+  <footer>made by Raks</footer>
+</body>
+</html>

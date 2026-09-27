@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ivory &amp; Gold Piano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15141C;
+    --bg2:#211F2C;
+    --gold:#D8B45C;
+    --gold-deep:#B6903A;
+    --ivory:#F6F1E4;
+    --plum:#5B3A63;
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top: env(safe-area-inset-top,0px); height:100%;}
+  body{
+    margin:0; min-height:100%;
+    background: radial-gradient(ellipse at 30% -10%, #2C2939 0%, var(--bg) 55%);
+    font-family:'Manrope', system-ui, sans-serif;
+    color: var(--ivory);
+    display:flex; flex-direction:column; align-items:center;
+    padding: 22px 16px 40px;
+    overflow-x:hidden;
+    transition: background .4s ease;
+  }
+  body.has-bg{ background-size:cover; background-position:center; }
+  body.has-bg::before{
+    content:''; position:fixed; inset:0;
+    background: rgba(10,9,14,.55);
+    z-index:-1;
+  }
+
+  /* Loading screen */
+  #loader{
+    position:fixed; inset:0; z-index:50;
+    background: radial-gradient(ellipse at 50% 30%, #2C2939, var(--bg) 70%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:22px;
+    transition: opacity .6s ease;
+  }
+  .loader-title{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:700; font-size: clamp(2.2rem,8vw,3rem);
+    letter-spacing:.04em; color:var(--gold);
+    text-shadow: 0 2px 18px rgba(216,180,92,.35);
+  }
+  .loader-bar{
+    width: min(280px, 70vw); height:6px; border-radius:99px;
+    background: rgba(255,255,255,.08); overflow:hidden;
+  }
+  .loader-fill{
+    height:100%; width:0%;
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+    border-radius:99px; transition: width .18s linear;
+  }
+  .loader-pct{ font-size:.8rem; letter-spacing:.08em; color:#B7AFC4; }
+
+  header{ text-align:center; margin-bottom:18px; }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:700; font-size: clamp(2rem,7vw,2.7rem);
+    margin:0; color: var(--gold);
+  }
+  .sub{ color:#B7AFC4; font-size:.92rem; margin-top:4px; }
+
+  /* Token bar */
+  .tokenbar{
+    display:flex; align-items:center; gap:14px;
+    background: rgba(255,255,255,.05);
+    border:1px solid rgba(216,180,92,.25);
+    border-radius:16px; padding:12px 18px;
+    margin-bottom:18px; backdrop-filter: blur(6px);
+  }
+  .coin{
+    width:34px;height:34px;border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #FFE9AE, var(--gold) 55%, var(--gold-deep) 100%);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800; font-size:1rem; color:#3B2A08;
+    box-shadow: 0 3px 6px rgba(0,0,0,.4);
+  }
+  .token-count{ font-weight:800; font-size:1.2rem; }
+  .token-label{ font-size:.75rem; color:#B7AFC4; }
+  .ad-btn{
+    margin-left:auto;
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:.85rem;
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    color:#2A1E06; border:none; padding:10px 16px; border-radius:12px;
+    cursor:pointer;
+  }
+  .ad-progress{ font-size:.72rem; color:#B7AFC4; margin-left:10px; white-space:nowrap; }
+
+  /* Controls row */
+  .controls{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+    margin-bottom: 22px; max-width: 520px;
+  }
+  .ctrl-btn{
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:.82rem;
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);
+    color: var(--ivory); padding:10px 16px; border-radius:12px;
+    cursor:pointer; display:flex; align-items:center; gap:8px;
+  }
+  .ctrl-btn .cost{
+    background: rgba(216,180,92,.18); color:var(--gold);
+    font-size:.68rem; padding:2px 7px; border-radius:99px; font-weight:800;
+  }
+  #audioPlayer{ display:block; width:100%; max-width:320px; margin: 4px 0 16px; }
+  .now-playing{ font-size:.78rem; color:#B7AFC4; margin-top:-6px; margin-bottom:16px; text-align:center; max-width:320px; }
+  .file-box{
+    background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:12px; padding:12px 14px; min-width:220px;
+  }
+  .file-label{ font-weight:700; font-size:.82rem; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .file-box input[type=file]{
+    width:100%; color:#B7AFC4; font-size:.78rem;
+  }
+  .file-box input[type=file]::file-selector-button{
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:.78rem;
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    color:#2A1E06; border:none; padding:7px 12px; border-radius:8px;
+    cursor:pointer; margin-right:10px;
+  }
+  .file-box.locked{ opacity:.55; }
+  .file-status{ font-size:.72rem; color:#8FCB9E; margin-top:6px; min-height:14px; }
+  .file-status.err{ color:#E88A7D; }
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+    background:#2A2130; border:1px solid rgba(224,106,92,.5); color:#F6E9E6;
+    padding:11px 18px; border-radius:12px; font-size:.82rem; font-weight:600;
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+    z-index:40; max-width:80vw; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* Piano 3D */
+  .piano-wrap{ perspective: 900px; width:100%; max-width:560px; }
+  .piano{
+    display:flex; position:relative;
+    transform: rotateX(18deg);
+    transform-style: preserve-3d;
+    background: linear-gradient(180deg,#2A2635,#1B1824);
+    border-radius: 14px 14px 6px 6px;
+    padding: 14px 10px 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .key{
+    position:relative; flex:1; height:150px; margin:0 2px;
+    background: linear-gradient(180deg, var(--ivory) 0%, #E4DBC2 88%, #C9BE9C 100%);
+    border-radius: 0 0 7px 7px;
+    box-shadow: 0 6px 0 #9C927A, 0 10px 14px rgba(0,0,0,.4);
+    cursor:pointer;
+    transform-style:preserve-3d;
+    transition: transform .05s ease, box-shadow .05s ease;
+    display:flex; align-items:flex-end; justify-content:center;
+    padding-bottom:8px;
+  }
+  .key span{ font-size:.65rem; color:#8A7F63; font-weight:700; }
+  .key.active, .key:active{
+    transform: translateY(5px);
+    box-shadow: 0 1px 0 #9C927A, 0 2px 6px rgba(0,0,0,.4);
+    background: linear-gradient(180deg,#EFE7CE,#D9CFAE);
+  }
+  .black-row{ position:absolute; top:14px; left:10px; right:10px; height:96px; display:flex; pointer-events:none; }
+  .black-key{
+    position:absolute; width:9.2%; height:100%;
+    background: linear-gradient(180deg,#3A3542,#121016);
+    border-radius:0 0 5px 5px;
+    box-shadow: 0 5px 0 #050406, 0 9px 12px rgba(0,0,0,.55);
+    pointer-events:all; cursor:pointer;
+    transition: transform .05s ease, box-shadow .05s ease;
+  }
+  .black-key.active, .black-key:active{
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #050406, 0 2px 5px rgba(0,0,0,.5);
+    background: linear-gradient(180deg,#4C4658,#1B1922);
+  }
+
+  footer{ margin-top:26px; font-size:.75rem; color:#8A8296; text-align:center; max-width:420px; line-height:1.6; }
+
+  @media (max-width:480px){
+    .key{ height:120px; }
+    .black-row{ height:76px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-title">Ivory &amp; Gold</div>
+  <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  <div class="loader-pct" id="loaderPct">Tuning strings… 0%</div>
+</div>
+
+<header>
+  <h1>Ivory &amp; Gold Piano</h1>
+  <div class="sub">A tiny 3D piano — earn tokens, unlock your own song and backdrop</div>
+</header>
+
+<div class="tokenbar">
+  <div class="coin">₮</div>
+  <div>
+    <div class="token-count" id="tokenCount">0</div>
+    <div class="token-label">tokens</div>
+  </div>
+  <button class="ad-btn" id="watchAdBtn">Watch ad</button>
+  <div class="ad-progress" id="adProgress">0 / 10 ads</div>
+</div>
+
+<div class="controls">
+  <div class="file-box">
+    <div class="file-label">🎵 Select MP3 song <span class="cost" id="songCost">1 token</span></div>
+    <input type="file" id="songInput" accept="audio/*">
+    <div class="file-status" id="songStatus"></div>
+  </div>
+  <div class="file-box">
+    <div class="file-label">🖼️ Select background <span class="cost" id="bgCost">1 token</span></div>
+    <input type="file" id="bgInput" accept="image/*">
+    <div class="file-status" id="bgStatus"></div>
+  </div>
+</div>
+<div class="now-playing" id="nowPlaying">No song loaded yet — earn a token to add your own.</div>
+<div class="toast" id="toast"></div>
+
+<input type="file" id="songInput" accept="audio/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;">
+<input type="file" id="bgInput" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;">
+<audio id="audioPlayer" controls></audio>
+
+<div class="piano-wrap">
+  <div class="piano" id="piano">
+    <div class="black-row" id="blackRow"></div>
+  </div>
+</div>
+
+<footer>
+  Tap the keys to play. This demo's "Watch ad" button simulates an ad break —
+  when you host this on your own site, swap that function for your real
+  PropellerAds ad call so tokens are earned from real ad views.
+</footer>
+
+<script>
+(function(){
+  // ---------- Loading screen ----------
+  const fill = document.getElementById('loaderFill');
+  const pct = document.getElementById('loaderPct');
+  const loader = document.getElementById('loader');
+  const msgs = ['Tuning strings…','Polishing keys…','Warming up the hall…','Almost ready…'];
+  let p = 0;
+  const timer = setInterval(()=>{
+    p += 4 + Math.random()*8;
+    if(p >= 100){ p = 100; clearInterval(timer); }
+    fill.style.width = p + '%';
+    pct.textContent = msgs[Math.min(msgs.length-1, Math.floor(p/26))] + ' ' + Math.floor(p) + '%';
+    if(p === 100){
+      setTimeout(()=>{ loader.style.opacity='0'; setTimeout(()=>loader.remove(),650); }, 300);
+    }
+  }, 140);
+
+  // ---------- Token economy ----------
+  let tokens = 0, adsWatched = 0;
+  const tokenCountEl = document.getElementById('tokenCount');
+  const adProgressEl = document.getElementById('adProgress');
+  const watchAdBtn = document.getElementById('watchAdBtn');
+
+  function renderTokens(){
+    tokenCountEl.textContent = tokens;
+    adProgressEl.textContent = (adsWatched % 10) + ' / 10 ads';
+  }
+
+  watchAdBtn.addEventListener('click', ()=>{
+    watchAdBtn.disabled = true;
+    const original = watchAdBtn.textContent;
+    let t = 3;
+    watchAdBtn.textContent = 'Ad playing… ' + t;
+    const iv = setInterval(()=>{
+      t--;
+      if(t <= 0){
+        clearInterval(iv);
+        watchAdBtn.textContent = original;
+        watchAdBtn.disabled = false;
+        adsWatched++;
+        if(adsWatched % 10 === 0){ tokens++; }
+        renderTokens();
+      } else {
+        watchAdBtn.textContent = 'Ad playing… ' + t;
+      }
+    }, 700);
+  });
+
+  // ---------- Song select (token-gated) ----------
+  const songInput = document.getElementById('songInput');
+  const songStatus = document.getElementById('songStatus');
+  const audioPlayer = document.getElementById('audioPlayer');
+  const nowPlaying = document.getElementById('nowPlaying');
+
+  const toastEl = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2600);
+  }
+  function needToken(){
+    showToast('You need 1 token — tap "Watch ad" ' + (10 - (adsWatched % 10)) + ' more time(s) to earn one.');
+  }
+
+  songInput.addEventListener('change', ()=>{
+    const f = songInput.files[0];
+    if(!f){ songStatus.textContent = 'No file selected.'; songStatus.classList.add('err'); return; }
+    if(tokens < 1){ needToken(); songInput.value=''; return; }
+    tokens -= 1; renderTokens();
+    songStatus.classList.remove('err');
+    songStatus.textContent = 'Loading ' + f.name + '…';
+    const url = URL.createObjectURL(f);
+    audioPlayer.src = url;
+    audioPlayer.onerror = ()=>{
+      songStatus.textContent = 'Could not play this file — try a different MP3.';
+      songStatus.classList.add('err');
+    };
+    audioPlayer.oncanplay = ()=>{
+      songStatus.textContent = 'Playing: ' + f.name;
+    };
+    audioPlayer.play().catch(()=>{
+      songStatus.textContent = 'Loaded ' + f.name + ' — tap the ▶ button below to play.';
+    });
+    nowPlaying.textContent = 'Now playing: ' + f.name;
+    showToast('Song loaded: ' + f.name);
+  });
+
+  // ---------- Background select (token-gated) ----------
+  const bgInput = document.getElementById('bgInput');
+  const bgStatus = document.getElementById('bgStatus');
+
+  bgInput.addEventListener('change', ()=>{
+    const f = bgInput.files[0];
+    if(!f){ bgStatus.textContent = 'No file selected.'; bgStatus.classList.add('err'); return; }
+    if(tokens < 1){ needToken(); bgInput.value=''; return; }
+    tokens -= 1; renderTokens();
+    bgStatus.classList.remove('err');
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = ()=>{
+      document.body.style.backgroundImage = "url('" + url + "')";
+      document.body.classList.add('has-bg');
+      bgStatus.textContent = 'Applied: ' + f.name;
+      showToast('Background updated: ' + f.name);
+    };
+    img.onerror = ()=>{
+      bgStatus.textContent = 'Could not load this image — try a different file.';
+      bgStatus.classList.add('err');
+    };
+    img.src = url;
+  });
+
+  renderTokens();
+
+  // ---------- Piano ----------
+  const notes = [
+    {n:'C4',f:261.63,type:'white'},{n:'C#4',f:277.18,type:'black'},
+    {n:'D4',f:293.66,type:'white'},{n:'D#4',f:311.13,type:'black'},
+    {n:'E4',f:329.63,type:'white'},
+    {n:'F4',f:349.23,type:'white'},{n:'F#4',f:369.99,type:'black'},
+    {n:'G4',f:392.00,type:'white'},{n:'G#4',f:415.30,type:'black'},
+    {n:'A4',f:440.00,type:'white'},{n:'A#4',f:466.16,type:'black'},
+    {n:'B4',f:493.88,type:'white'},
+    {n:'C5',f:523.25,type:'white'}
+  ];
+  const whiteNotes = notes.filter(n=>n.type==='white');
+  const piano = document.getElementById('piano');
+  const blackRow = document.getElementById('blackRow');
+
+  whiteNotes.forEach(n=>{
+    const k = document.createElement('div');
+    k.className='key'; k.dataset.freq=n.f;
+    k.innerHTML = '<span>'+n.n.replace('4','').replace('5','')+'</span>';
+    piano.appendChild(k);
+  });
+
+  // position black keys over the white key gaps (approx, 7 white keys)
+  const blackPositions = [1,2,4,5,6]; // index gaps among 7 white keys where black keys sit (C#,D#,F#,G#,A#)
+  const blackFreqs = notes.filter(n=>n.type==='black').map(n=>n.f);
+  blackPositions.forEach((pos,i)=>{
+    const bk = document.createElement('div');
+    bk.className='black-key'; bk.dataset.freq = blackFreqs[i];
+    bk.style.left = (pos * (100/7) - 4.6) + '%';
+    blackRow.appendChild(bk);
+  });
+
+  let actx;
+  function playTone(freq){
+    if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = actx.createOscillator();
+    const gain = actx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.22, actx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.9);
+    osc.connect(gain).connect(actx.destination);
+    osc.start();
+    osc.stop(actx.currentTime + 0.9);
+  }
+
+  function bindKey(el){
+    const play = (e)=>{
+      e.preventDefault();
+      playTone(parseFloat(el.dataset.freq));
+      el.classList.add('active');
+      setTimeout(()=>el.classList.remove('active'), 130);
+    };
+    el.addEventListener('pointerdown', play, {passive:false});
+  }
+  document.querySelectorAll('.key, .black-key').forEach(bindKey);
+})();
+</script>
+</body>
+</html>
